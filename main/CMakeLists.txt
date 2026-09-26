@@ -5,8 +5,7 @@ idf_component_register(SRCS main.cpp
                        PRIV_REQUIRES spi_flash
                                      esp_driver_uart
                                      console
-                                     cmd_wifi
-                                     cmd_system
+                                     gc9a01
                        REQUIRES joost_onboardled
                                 joost_support
                        INCLUDE_DIRS ".")
