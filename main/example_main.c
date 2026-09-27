@@ -205,13 +205,21 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi(LCD_HOST, &io_config, &io_handle));
 
     esp_lcd_panel_handle_t panel_handle = NULL;
+    // esp_lcd_panel_dev_config_t panel_config = {
+    //     .reset_gpio_num = EXAMPLE_PIN_NUM_LCD_RST,
+    //     .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
+    //     .bits_per_pixel = 16,
+    // };
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = EXAMPLE_PIN_NUM_LCD_RST,
-        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
+        .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB,
         .bits_per_pixel = 16,
     };
-    ESP_LOGI(TAG, "Install ST7789 panel driver");
-    ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle));
+
+    // ESP_LOGI(TAG, "Install ST7789 panel driver");
+    // ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle));
+    ESP_LOGI(TAG, "Install gc9a01 panel driver");
+    ESP_ERROR_CHECK(esp_lcd_new_panel_gc9a01(io_handle, &panel_config, &panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, true, false));
