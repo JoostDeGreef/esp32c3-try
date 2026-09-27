@@ -12,7 +12,25 @@
       "description": "Development configuration",
       "binaryDir": "/home/joost/src/esp32-s3_wifi/build/default",
       "cacheVariables": {
-        "SDKCONFIG": "/home/joost/src/esp32-s3_wifi/build/default/sdkconfig"
+        "SDKCONFIG": "/home/joost/src/esp32-s3_wifi/build/default/sdkconfig",
+        "IDF_TARGET": "esp32c3"
+      },
+      "vendor": {
+        "espressif/vscode-esp-idf": {
+          "schemaVersion": 1,
+          "settings": [
+            {
+              "type": "openOCD",
+              "value": {
+                "debugLevel": 2,
+                "configs": [
+                  "board/esp32c3-builtin.cfg"
+                ],
+                "args": []
+              }
+            }
+          ]
+        }
       }
     },
     {

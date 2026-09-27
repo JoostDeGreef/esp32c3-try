@@ -14,7 +14,7 @@
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_vendor.h"
 #include "esp_lcd_panel_ops.h"
-#include "esp_lcd_panel_st7789.h"
+#include "esp_lcd_gc9a01.h"
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 #include "esp_err.h"
@@ -44,7 +44,7 @@ static const char *TAG = "example";
 #define EXAMPLE_PIN_NUM_LCD_DC         8
 #define EXAMPLE_PIN_NUM_LCD_RST        9
 #define EXAMPLE_PIN_NUM_LCD_CS         7
-#define EXAMPLE_PIN_NUM_BK_LIGHT       2
+//#define EXAMPLE_PIN_NUM_BK_LIGHT       2
 //#define EXAMPLE_PIN_NUM_TOUCH_CS       15
 
 #define TFT_CS 7
@@ -58,7 +58,7 @@ static const char *TAG = "example";
 
 // The pixel number in horizontal and vertical
 #define EXAMPLE_LCD_H_RES              240
-#define EXAMPLE_LCD_V_RES              320
+#define EXAMPLE_LCD_V_RES              240
 // Bit number used to represent command and parameter
 #define EXAMPLE_LCD_CMD_BITS           8
 #define EXAMPLE_LCD_PARAM_BITS         8
@@ -172,12 +172,12 @@ static void example_lvgl_port_task(void *arg)
 
 void app_main(void)
 {
-    ESP_LOGI(TAG, "Turn off LCD backlight");
-    gpio_config_t bk_gpio_config = {
-        .mode = GPIO_MODE_OUTPUT,
-        .pin_bit_mask = 1ULL << EXAMPLE_PIN_NUM_BK_LIGHT
-    };
-    ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
+    // ESP_LOGI(TAG, "Turn off LCD backlight");
+    // gpio_config_t bk_gpio_config = {
+    //     .mode = GPIO_MODE_OUTPUT,
+    //     .pin_bit_mask = 1ULL << EXAMPLE_PIN_NUM_BK_LIGHT
+    // };
+    // ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
 
     ESP_LOGI(TAG, "Initialize SPI bus");
     spi_bus_config_t buscfg = {
@@ -219,8 +219,8 @@ void app_main(void)
     // user can flush pre-defined pattern to the screen before we turn on the screen or backlight
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 
-    ESP_LOGI(TAG, "Turn on LCD backlight");
-    gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_ON_LEVEL);
+    // ESP_LOGI(TAG, "Turn on LCD backlight");
+    // gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_ON_LEVEL);
 
     ESP_LOGI(TAG, "Initialize LVGL library");
     lv_init();
