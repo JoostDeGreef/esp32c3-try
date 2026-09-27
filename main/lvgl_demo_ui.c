@@ -11,15 +11,15 @@
 static lv_obj_t * btn;
 static lv_display_rotation_t rotation = LV_DISPLAY_ROTATION_0;
 
-static void btn_cb(lv_event_t * e)
-{
-    lv_display_t *disp = lv_event_get_user_data(e);
-    rotation++;
-    if (rotation > LV_DISPLAY_ROTATION_270) {
-        rotation = LV_DISPLAY_ROTATION_0;
-    }
-    lv_display_set_rotation(disp, rotation);
-}
+// static void btn_cb(lv_event_t * e)
+// {
+//     lv_display_t *disp = lv_event_get_user_data(e);
+//     rotation++;
+//     if (rotation > LV_DISPLAY_ROTATION_270) {
+//         rotation = LV_DISPLAY_ROTATION_0;
+//     }
+//     lv_display_set_rotation(disp, rotation);
+// }
 static void set_angle(void * obj, int32_t v)
 {
     lv_arc_set_value(obj, v);
@@ -29,12 +29,12 @@ void example_lvgl_demo_ui(lv_display_t *disp)
 {
     lv_obj_t *scr = lv_display_get_screen_active(disp);
 
-    btn = lv_button_create(scr);
-    lv_obj_t * lbl = lv_label_create(btn);
-    lv_label_set_text_static(lbl, LV_SYMBOL_REFRESH" ROTATE");
-    lv_obj_align(btn, LV_ALIGN_BOTTOM_LEFT, 30, -30);
+    //btn = lv_button_create(scr);
+    //lv_obj_t * lbl = lv_label_create(btn);
+    //lv_label_set_text_static(lbl, LV_SYMBOL_REFRESH" ROTATE");
+    //lv_obj_align(btn, LV_ALIGN_BOTTOM_LEFT, 30, -30);
     /*Button event*/
-    lv_obj_add_event_cb(btn, btn_cb, LV_EVENT_CLICKED, disp);
+    //lv_obj_add_event_cb(btn, btn_cb, LV_EVENT_CLICKED, disp);
 
     /*Create an Arc*/
     lv_obj_t * arc = lv_arc_create(scr);
