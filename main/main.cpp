@@ -10,13 +10,13 @@
 #include "serial.h"
 #include "joost_onboardled.h"
 
-extern "C" void app_main()
-{
-    Console::write("Starting up\n");   
+// extern "C" void app_main()
+// {
+//     Console::write("Starting up\n");   
 
-    Serial::configure();
+//     Serial::configure();
 
-    OnboardLed::flash();
+//     OnboardLed::flash();
 
-    Console::mainLoop();
-}
+//     Console::mainLoop();
+// }

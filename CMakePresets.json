@@ -10,39 +10,18 @@
       "name": "default",
       "displayName": "Default (development)",
       "description": "Development configuration",
-      "binaryDir": "${sourceDir}/build/default",
+      "binaryDir": "/home/joost/src/esp32-s3_wifi/build/default",
       "cacheVariables": {
-        "SDKCONFIG": "${sourceDir}/build/default/sdkconfig",
-        "IDF_TARGET": "esp32c3"
-      },
-      "environment": {
-        "OPENOCD_USB_ADAPTER_LOCATION": "1-1.4.2"
-      },
-      "vendor": {
-        "espressif/vscode-esp-idf": {
-          "schemaVersion": 1,
-          "settings": [
-            {
-              "type": "openOCD",
-              "value": {
-                "debugLevel": 2,
-                "configs": [
-                  "board/esp32c3-builtin.cfg"
-                ],
-                "args": []
-              }
-            }
-          ]
-        }
+        "SDKCONFIG": "/home/joost/src/esp32-s3_wifi/build/default/sdkconfig"
       }
     },
     {
       "name": "production",
       "displayName": "Production",
       "description": "Production configuration",
-      "binaryDir": "${sourceDir}/build/production",
+      "binaryDir": "/home/joost/src/esp32-s3_wifi/build/production",
       "cacheVariables": {
-        "SDKCONFIG": "${sourceDir}/build/production/sdkconfig"
+        "SDKCONFIG": "/home/joost/src/esp32-s3_wifi/build/production/sdkconfig"
       }
     }
   ]
