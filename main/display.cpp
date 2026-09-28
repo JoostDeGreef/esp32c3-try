@@ -166,7 +166,7 @@ void Painter::line(int x0, int y0, int x1, int y1, int16_t rgb)
             dy = y1-y0;
         }
     };
-    if(dx>dy)
+    if(abs(dx)>abs(dy))
     {
         swapPointsIfNeeded(dx<0);
         for(int i=0;i<=dx;++i)
@@ -186,3 +186,12 @@ void Painter::line(int x0, int y0, int x1, int y1, int16_t rgb)
     }
 }
 
+void text(int x, int y, int16_t rgb, const std::string & text)
+{
+
+}
+
+int textWidth(int x, int y, const std::string & text)
+{
+    return 0;
+}
