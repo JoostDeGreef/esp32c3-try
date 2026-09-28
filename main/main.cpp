@@ -7,16 +7,25 @@
 #include "sdkconfig.h"
 
 #include "console.h"
+#include "display.h"
 #include "serial.h"
 #include "joost_onboardled.h"
 
-// extern "C" void app_main()
-// {
-//     Console::write("Starting up\n");   
+extern "C" void app_main()
+{
+    Console::write("Starting up\n");   
 
-//     Serial::configure();
+    Serial::configure();
 
-//     OnboardLed::flash();
+    Display::configure();
+    
+Painter p = Display::getPainter();
+p.clear();
+p.dot(100,100,RGB(0,0,255));
+p.line(30,10,200,180,RGB(255,0,0));
+Display::flip();
 
-//     Console::mainLoop();
-// }
+    OnboardLed::flash();
+
+    Console::mainLoop();
+}
