@@ -36,6 +36,8 @@ public:
     void fill(int16_t rgb);
     void dot(int x, int y, int16_t rgb);
     void line(int x0, int y0, int x1, int y1, int16_t rgb);
+    void circle(int cx, int cy, int radius, int16_t rgb);
+    void filled_circle(int cx, int cy, int radius, int16_t rgb);
     void text(int x, int y, int16_t rgb, const std::string & text);
     int textWidth(int x, int y, const std::string & text);
 

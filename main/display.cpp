@@ -186,6 +186,54 @@ void Painter::line(int x0, int y0, int x1, int y1, int16_t rgb)
     }
 }
 
+void Painter::circle(int cx, int cy, int radius, int16_t rgb)
+{
+    int x = radius;
+    int y = 0;
+    int decision = 1 - radius;
+
+    while (x >= y)
+    {
+        dot(cx + x, cy + y, rgb);
+        dot(cx + y, cy + x, rgb);
+        dot(cx - y, cy + x, rgb);
+        dot(cx - x, cy + y, rgb);
+        dot(cx - x, cy - y, rgb);
+        dot(cx - y, cy - x, rgb);
+        dot(cx + y, cy - x, rgb);
+        dot(cx + x, cy - y, rgb);
+
+        ++y;
+        if (decision <= 0)
+        {
+            // this follows from (y+1)^2 − y^2 = 2y + 1
+            decision += 2 * y + 1;
+        }
+        else
+        {
+            --x;
+            decision += 2 * (y - x) + 1;
+        }
+    }
+}
+
+void Painter::filled_circle(int cx, int cy, int radius, int16_t rgb)
+{
+    int x = radius;
+    int y = 0;
+    int decision = 1 - radius;
+
+    while (x >= y)
+    {
+        line(cx - x, cy + y, cx + x, cy + y, rgb);
+        line(cx - x, cy - y, cx + x, cy - y, rgb);
+        line(cx - y, cy + x, cx + y, cy + x, rgb);
+        line(cx - y, cy - x, cx + y, cy - x, rgb);
+
+        decision += (decision <= 0) ? 2 * (++y) + 1 : 2 * ((++y) - (--x)) + 1;
+    }
+}
+
 void text(int x, int y, int16_t rgb, const std::string & text)
 {
 
