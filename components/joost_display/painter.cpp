@@ -116,13 +116,15 @@ void Painter::text(int x, int y, int16_t rgb, const std::string & text)
     auto drawChar = [&](const font_data_struct & c)
     {
         int i=0;
+        int xo = c.offset_x;
+        int yo = c.offset_y;
         for(int yi=0;yi<c.height;++yi)
         {
             for(int xi=0;xi<c.width;++xi)
             {
                 if(c.data[i/8] & (1<<(i % 8)))
                 {
-                    dot(x+xi,y+yi,rgb);
+                    dot(x+xi+xo,y+yi+yo,rgb);
                 }
                 ++i;
             }
