@@ -143,7 +143,7 @@ int Painter::textWidth(int x, int y, const std::string & text)
     int res = 0;
     for(const char c:text)
     {
-        res += font_data[c].width;
+        res += font_data[c].advance;
     }
     return res;
 }
