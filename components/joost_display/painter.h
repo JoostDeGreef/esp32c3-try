@@ -3,30 +3,7 @@
 #include <tuple>
 #include <string>
 
-inline uint16_t RGB(uint8_t r, uint8_t g, uint8_t b)
-{
-    // for some reason the display expects the data inverted
-    uint16_t rgb =
-       ((r & 0xF8) << 8) |
-       ((g & 0xFC) << 3) |
-       ( b         >> 3);
-    return ~rgb;
-}
-
-inline void RGB(uint16_t rgb, uint8_t & r, uint8_t & g, uint8_t & b)
-{
-    rgb = ~rgb;
-    r = (rgb >> 8) & 0xF8;
-    g = (rgb >> 3) & 0xFC;
-    b = (rgb << 3);
-}
-
-inline std::tuple<uint8_t, uint8_t, uint8_t> RGB(uint16_t rgb)
-{
-    uint8_t r,g,b;
-    RGB(rgb,r,g,b);
-    return {r, g, b};
-}
+#include "rgb.h"
 
 class Painter
 {
@@ -38,6 +15,8 @@ public:
     void line(int x0, int y0, int x1, int y1, int16_t rgb);
     void circle(int cx, int cy, int radius, int16_t rgb);
     void filled_circle(int cx, int cy, int radius, int16_t rgb);
+    void rectangle(int x0, int y0, int x1, int y1, int16_t rgb);
+    void filled_rectangle(int x0, int y0, int x1, int y1, int16_t rgb);
     void text(int x, int y, int16_t rgb, const std::string & text);
     int textWidth(int x, int y, const std::string & text);
 
@@ -66,22 +45,3 @@ private:
     uint16_t height;
 };
 
-class Display
-{
-public:
-
-    /*
-     *  configure the display
-     */
-    static void configure();
-
-    /*
-     *  flip the buffers, sending the previously painted one to the display
-     */
-    static void flip();
-
-    /*
-     *  get a painter for the currently active buffer 
-     */
-    static Painter getPainter();
-};
