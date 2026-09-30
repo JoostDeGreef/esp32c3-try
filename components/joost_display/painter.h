@@ -30,13 +30,11 @@ private:
 
     inline constexpr int index(int x, int y)
     {
-    #ifdef DEBUG
         if(x<0 || x>=width || y<0 || y>=height)
         {
             // error!
-            return -1
+            return -1;
         }
-    #endif
         return y*width+x;
     }
 

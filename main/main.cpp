@@ -25,7 +25,7 @@ p.filled_circle(160,80,50,RGB(128,255,40));
 p.circle(120,120,40,RGB(0,255,0));
 p.dot(100,100,RGB(0,0,255));
 p.line(30,10,200,180,RGB(255,0,0));
-p.text(50,150,RGB(128,128,255),"Mira");
+p.text(50,150,RGB(128,128,255),"Mira" + std::string(1,(char)255));
 Display::flip();
 
     OnboardLed::flash();

@@ -113,8 +113,9 @@ void Painter::filled_circle(int cx, int cy, int radius, int16_t rgb)
 
 void Painter::text(int x, int y, int16_t rgb, const std::string & text)
 {
-    auto drawChar = [&](const font_data_struct & c)
+    auto drawChar = [&](const char curr, const char next)
     {
+        const auto & c = font_data[curr];
         int i=0;
         int xo = c.offset_x;
         int yo = c.offset_y;
@@ -130,20 +131,33 @@ void Painter::text(int x, int y, int16_t rgb, const std::string & text)
             }
         }
         x += c.advance;
+        auto it = font_kernings.find({curr, next});
+        if(it != font_kernings.end())
+        {
+            x += it->second;
+        }
     };
-    for(const char c:text)
+    for(int i=0;i<text.size();++i)
     {
-        const auto & token = font_data[c];
-        drawChar(token);
+        const char curr = text[i];
+        const char next = i+1 < text.size() ? text[i+1] : 0;
+        drawChar(curr, next);
     }
 }
 
 int Painter::textWidth(int x, int y, const std::string & text)
 {
     int res = 0;
-    for(const char c:text)
+    for(int i=0;i<text.size();++i)
     {
-        res += font_data[c].advance;
+        const char curr = text[i];
+        const char next = i+1 < text.size() ? text[i+1] : 0;
+        res += font_data[curr].advance;
+        auto it = font_kernings.find({curr, next});
+        if(it != font_kernings.end())
+        {
+            res += it->second;
+        }
     }
     return res;
 }

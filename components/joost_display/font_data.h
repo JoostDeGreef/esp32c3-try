@@ -12,3 +12,5 @@ struct font_data_struct
   const uint8_t * data;
 };
 extern std::map<char,font_data_struct> font_data;
+extern std::map<std::pair<char,char>,int> font_kernings;
+#define ASCII_HEART 255

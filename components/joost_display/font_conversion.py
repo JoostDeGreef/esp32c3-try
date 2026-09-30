@@ -74,8 +74,8 @@ for char in chars:
     # update the meta data
     char["x"] = x
     char["y"] = y
-    char["ox"] = ox
-    char["oy"] = oy
+    char["xoffset"] = ox
+    char["yoffset"] = oy
     char["width"] = w
     char["height"] = h
     
@@ -96,7 +96,9 @@ with open("font_data.h","w") as f:
     f.write("  int8_t advance;\n")
     f.write("  const uint8_t * data;\n")
     f.write("};\n")
-    f.write("extern std::map<char,font_data_struct> font_data;");
+    f.write("extern std::map<char,font_data_struct> font_data;\n")
+    f.write("extern std::map<std::pair<char,char>,int> font_kernings;\n")
+    f.write("#define ASCII_HEART 255\n")
 #
 # Create the cpp file
 #
@@ -124,18 +126,35 @@ with open("font_data.cpp","w") as f:
                     i = int(1)
                     v = int(0)
         f.write("{}}};\n".format(v))
+    f.write("// predefined\n")
+    f.write(r"static const uint8_t glyph_255[] = {0,0,0,0,0,0,0,0,0,0,0,248,15,254,129,255,243,127,248,255,255,31,255,255,255,243,255,255,255,254,255,255,223,255,255,255,251,255,255,127,255,255,255,239,255,255,255,253,255,255,63,255,255,255,227,255,255,127,248,255,255,7,254,255,127,192,255,255,15,240,255,255,0,252,255,15,0,255,255,0,192,255,15,0,240,255,0,0,252,15,0,0,255,0,0,192,15,0,0,96,0,0};")
     #
-    # Write the meta data
+    # Write the glyph meta data
     #
-    f.write("std::map<char,font_data_struct> font_data\n{\n");
+    f.write("\nstd::map<char,font_data_struct> font_data\n{\n");
     for char in chars:
         c = char["char"]
         g = ord(c)
         c = c.replace("\\","\\\\").replace('"',"\\\"").replace("\'","\\\'")
+        w = char["width"]
+        h = char["height"]
         ox = char["xoffset"]
         oy = char["yoffset"]
-        a = char["xadvance"]
+        a = char["xadvance"] + 2 # the advance for this font is very tight for some characters. fix that
         f.write("  {{\'{}\',{{{},{},{},{},{},glyph_{}}}}},\n".format(c,w,h,ox,oy,a,g))
+    f.write("  // predefined\n")
+    f.write(r"  {ASCII_HEART,{29,28,2,3,26,glyph_255}}," + "\n")
+    f.write("};\n")
+    #
+    # Write the kerning (offsets for specific sequences of characters)
+    #
+    f.write("std::map<std::pair<char,char>,int> font_kernings\n{\n");
+    kernings = meta["kernings"]
+    for kerning in kernings:
+        a = kerning["first"]
+        b = kerning["second"]
+        c = kerning["amount"]
+        f.write("  {{{{{},{}}},{}}},\n".format(a,b,c))
     f.write("};\n")
 
 
