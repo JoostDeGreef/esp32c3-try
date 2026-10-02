@@ -145,7 +145,7 @@ void Painter::text(int x, int y, int16_t rgb, const std::string & text)
     }
 }
 
-int Painter::textWidth(int x, int y, const std::string & text)
+int Painter::textWidth(const std::string & text)
 {
     int res = 0;
     for(int i=0;i<text.size();++i)

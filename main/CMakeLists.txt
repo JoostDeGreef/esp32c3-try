@@ -1,4 +1,5 @@
-idf_component_register(SRCS commands.cpp
+idf_component_register(SRCS clock.cpp 
+                            commands.cpp
                             console.cpp
                             main.cpp
                             serial.cpp
