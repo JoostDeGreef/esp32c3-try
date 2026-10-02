@@ -2,16 +2,19 @@
 
 #include <tuple>
 
+//
+// This is a very specific rgb->bgr565 function for the GC9A01 module i'm using. It is not a generic function
+//
 inline uint16_t RGB(uint8_t r, uint8_t g, uint8_t b)
 {
-    // for some reason the display expects the data inverted
     uint16_t rgb =
        ((r & 0xF8) << 8) |
        ((g & 0xFC) << 3) |
        ( b         >> 3);
-    return ~rgb;
+    return ~((rgb >> 8) | (rgb << 8));
 }
 
+// not done
 inline void RGB(uint16_t rgb, uint8_t & r, uint8_t & g, uint8_t & b)
 {
     rgb = ~rgb;
@@ -20,6 +23,7 @@ inline void RGB(uint16_t rgb, uint8_t & r, uint8_t & g, uint8_t & b)
     b = (rgb << 3);
 }
 
+// not done
 inline std::tuple<uint8_t, uint8_t, uint8_t> RGB(uint16_t rgb)
 {
     uint8_t r,g,b;

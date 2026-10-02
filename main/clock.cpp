@@ -61,12 +61,14 @@ void ClockImpl::Stop()
 void ClockImpl::Render()
 {
     static uint16_t white = RGB(255,255,255);
-    static uint16_t grey = RGB(200,200,200);
+    static uint16_t grey = RGB(50,50,50);
+    static uint16_t black = RGB(0,0,0);
     static uint16_t red = RGB(255,0,0);
     static uint16_t r = 120;
 
     Painter p = Display::getPainter();
-    p.clear();
+    //p.clear();
+    p.fill(black);
     // get the time from somewhere real, for now, millis()
     int seconds = esp_timer_get_time() / (1000*1000);
     int minutes = seconds/60;

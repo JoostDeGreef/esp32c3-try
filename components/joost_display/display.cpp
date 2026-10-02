@@ -102,7 +102,7 @@ void DisplayImpl::configure()
 
     esp_lcd_panel_dev_config_t panel_config = {};
     panel_config.reset_gpio_num = EXAMPLE_PIN_NUM_LCD_RST;
-    panel_config.rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB;
+    panel_config.rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR;
     panel_config.bits_per_pixel = 16;
 
     ESP_ERROR_CHECK(esp_lcd_new_panel_gc9a01(io_handle, &panel_config, &panel_handle));
