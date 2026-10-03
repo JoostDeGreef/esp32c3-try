@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <array>
+#include <cmath>
 
 #include "painter.h"
 #include "font_data.h"
@@ -61,6 +62,23 @@ void Painter::line(int x0, int y0, int x1, int y1, int16_t rgb)
             dot(x0+j,y0+i,rgb);
         }
     }
+}
+
+void Painter::line(int x0, int y0, int x1, int y1, int16_t rgb, int thickness)
+{
+    // draw the parallel lines
+    int dx = x1-x0;
+    int dy = y1-y0;
+    double length = sqrt(dx*dx + dy*dy);
+    double nx = -dy / length;
+    double ny =  dx / length;
+    for (int i = -thickness/2; i <= thickness/2; ++i)
+    {
+        line(round(x0 + nx*i),round(y0 + ny*i),round(x1 + nx*i),round(y1 + ny*i),rgb);
+    }
+    // draw the ends
+    filled_circle(x0,y0,thickness/2,rgb);
+    filled_circle(x1,y1,thickness/2,rgb);
 }
 
 void Painter::circle(int cx, int cy, int radius, int16_t rgb)
@@ -163,6 +181,22 @@ int Painter::textWidth(const std::string & text)
 }
 
 void Painter::rectangle(int x0, int y0, int x1, int y1, int16_t rgb)
-{}
+{
+    line(x0,y0,x1,y0,rgb);
+    line(x1,y0,x1,y1,rgb);
+    line(x1,y1,x0,y1,rgb);
+    line(x0,y1,x0,y0,rgb);
+}
+
 void Painter::filled_rectangle(int x0, int y0, int x1, int y1, int16_t rgb)
-{}
+{
+    if(y0>y1)
+    {
+        std::swap(x0,x1);
+        std::swap(y0,y1);
+    }
+    for( int y=y0;y<=y1;++y)
+    {
+        line(x0, y, x1, y, rgb);
+    }
+}

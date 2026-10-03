@@ -11,7 +11,7 @@ inline uint16_t RGB(uint8_t r, uint8_t g, uint8_t b)
        ((r & 0xF8) << 8) |
        ((g & 0xFC) << 3) |
        ( b         >> 3);
-    return ~((rgb >> 8) | (rgb << 8));
+    return ~rgb;
 }
 
 // not done
