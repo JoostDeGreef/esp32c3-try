@@ -144,6 +144,15 @@ p.filled_rectangle(45, 80, 85, 120, RGB(255, 0, 255));
 p.filled_rectangle(95, 80, 135, 120, RGB(0, 255, 255));
 p.filled_rectangle(145, 80, 185, 120, RGB(255, 255, 255));
 
+// printf("\nR     %04X\n", RGB(255,0,0));
+// printf("G     %04X\n", RGB(0,255,0));
+// printf("B     %04X\n", RGB(0,0,255));
+// printf("Y     %04X\n", RGB(255,255,0));
+// printf("M     %04X\n", RGB(255,0,255));
+// printf("C     %04X\n", RGB(0,255,255));
+// printf("W     %04X\n", RGB(255,255,255));
+// printf("K     %04X\n\n", RGB(0,0,0));
+
     Display::flip();
 }
 

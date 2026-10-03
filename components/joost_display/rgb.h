@@ -11,23 +11,8 @@ inline uint16_t RGB(uint8_t r, uint8_t g, uint8_t b)
        ((r & 0xF8) << 8) |
        ((g & 0xFC) << 3) |
        ( b         >> 3);
-    return ~rgb;
+    //return ~rgb; // esp is inverted?
+    return (rgb << 8) | (rgb >> 8); // adafruit style
 }
 
-// not done
-inline void RGB(uint16_t rgb, uint8_t & r, uint8_t & g, uint8_t & b)
-{
-    rgb = ~rgb;
-    r = (rgb >> 8) & 0xF8;
-    g = (rgb >> 3) & 0xFC;
-    b = (rgb << 3);
-}
-
-// not done
-inline std::tuple<uint8_t, uint8_t, uint8_t> RGB(uint16_t rgb)
-{
-    uint8_t r,g,b;
-    RGB(rgb,r,g,b);
-    return {r, g, b};
-}
 
