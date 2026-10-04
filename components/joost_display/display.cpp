@@ -45,8 +45,12 @@ class DisplayImpl
     private:
         esp_lcd_panel_handle_t panel_handle = NULL;
 
-        std::array<std::array<uint16_t,EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES>,2> framebuffer;
-        uint8_t framebufferIndex = 0; 
+        std::array<uint16_t,EXAMPLE_LCD_H_RES * EXAMPLE_LCD_V_RES> framebuffer;
+        TaskHandle_t flip_task = nullptr;
+
+        static bool onColorTransDone(esp_lcd_panel_io_handle_t panel_io,
+                                     esp_lcd_panel_io_event_data_t *edata,
+                                     void *user_ctx);
 };
 
 /***************************************************************/
@@ -241,8 +245,8 @@ void DisplayImpl::configure()
     io_config.lcd_param_bits = EXAMPLE_LCD_PARAM_BITS;
     io_config.spi_mode = 0;
     io_config.trans_queue_depth = 10;
-    io_config.on_color_trans_done = nullptr;
-    io_config.user_ctx = nullptr;
+    io_config.on_color_trans_done = DisplayImpl::onColorTransDone;
+    io_config.user_ctx = this;
     io_config.flags = {};                                                 
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_spi(LCD_HOST, &io_config, &io_handle));
 
@@ -262,16 +266,44 @@ void DisplayImpl::configure()
     ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, true));
 }
 
+bool DisplayImpl::onColorTransDone(esp_lcd_panel_io_handle_t panel_io,
+                                    esp_lcd_panel_io_event_data_t *edata,
+                                    void *user_ctx)
+{
+    auto *display = static_cast<DisplayImpl *>(user_ctx);
+
+    if (display->flip_task != nullptr)
+    {
+        BaseType_t higher_priority_task_woken = pdFALSE;
+        vTaskNotifyGiveFromISR(display->flip_task, &higher_priority_task_woken);
+        return higher_priority_task_woken == pdTRUE;
+    }
+
+    return false;
+}
+
 void DisplayImpl::flip()
 {
-    // wait for on_color_trans_done() to be done.
-    // add a lock? 
-    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle,0,0,EXAMPLE_LCD_H_RES,EXAMPLE_LCD_V_RES,framebuffer[framebufferIndex].data()));
-    framebufferIndex = 1-framebufferIndex;
+    flip_task = xTaskGetCurrentTaskHandle();
+
+    // Make sure there is no notification left over from a previous transfer.
+    ulTaskNotifyTake(pdTRUE, 0);
+
+    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(
+        panel_handle,
+        0, 0,
+        EXAMPLE_LCD_H_RES,
+        EXAMPLE_LCD_V_RES,
+        framebuffer.data()));
+
+    // The framebuffer must not be modified until the DMA transfer is complete.
+    ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
+    flip_task = nullptr;
 }
 
 uint16_t * DisplayImpl::getBuffer()
 {
-    return framebuffer[framebufferIndex].data();
+    return framebuffer.data();
 }
 
