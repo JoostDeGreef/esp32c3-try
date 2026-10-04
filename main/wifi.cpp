@@ -8,6 +8,7 @@
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
+#include "nvs_flash.h"
 
 /* The event group allows multiple bits for each event, but we only care about two events:
  * - we are connected to the AP with an IP
@@ -37,20 +38,20 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
         {
             esp_wifi_connect();
             s_retry_num++;
-            printf("retry to connect to the AP\n");
+            printf("retry to connect to the AP\\n");
         } 
         else 
         {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
-        printf("connect to the AP fail\n");
+        printf("connect to the AP fail\\n");
     } 
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) 
     {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         char buf[16];
         wifi_ip = std::string(esp_ip4addr_ntoa(&event->ip_info.ip, buf, sizeof(buf)));
-        printf("got ip:" IPSTR "\n", IP2STR(&event->ip_info.ip));
+        printf("got ip:" IPSTR "\\n", IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
@@ -60,8 +61,16 @@ namespace WiFi
 {
     void configure()
     {
-        printf("ESP_WIFI_MODE_STA\n");
+        printf("ESP_WIFI_MODE_STA\\n");
         s_wifi_event_group = xEventGroupCreate();
+
+        esp_err_t ret = nvs_flash_init();
+        if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+        {
+            ESP_ERROR_CHECK(nvs_flash_erase());
+            ret = nvs_flash_init();
+        }
+        ESP_ERROR_CHECK(ret);
 
         ESP_ERROR_CHECK(esp_netif_init());
         ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -98,7 +107,7 @@ namespace WiFi
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &sta_config) );
         ESP_ERROR_CHECK(esp_wifi_start() );
 
-        printf("wifi_init_sta finished.\n");
+        printf("wifi_init_sta finished.\\n");
 
         /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
          * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
@@ -112,15 +121,15 @@ namespace WiFi
          * happened. */
         if (bits & WIFI_CONNECTED_BIT) 
         {
-            printf("connected to ap SSID:%s\n", ssid);
+            printf("connected to ap SSID:%s\\n", ssid);
         } 
         else if (bits & WIFI_FAIL_BIT) 
         {
-            printf("Failed to connect to SSID:%s\n", ssid);
+            printf("Failed to connect to SSID:%s\\n", ssid);
         } 
         else 
         {
-            printf("UNEXPECTED EVENT\n");
+            printf("UNEXPECTED EVENT\\n");
         }
     }
 
