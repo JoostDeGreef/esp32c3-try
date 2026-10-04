@@ -207,8 +207,8 @@ static const gc9a01_lcd_init_cmd_t adafruit_init_cmd[] =
     {0x98,             (uint8_t []){0x3e, 0x07}, 2, 0}, // ?
     {GC9A01A_TEON,     (uint8_t []){}, 0, 0},
     {GC9A01A_INVON,    (uint8_t []){}, 0, 0},
-    {GC9A01A_SLPOUT,   (uint8_t []){0x80}, 1, 0}, // Exit sleep
-    {GC9A01A_DISPON,   (uint8_t []){0x80}, 1, 0}, // Display on
+    {GC9A01A_SLPOUT,   (uint8_t []){}, 0, 150}, // Exit sleep
+    {GC9A01A_DISPON,   (uint8_t []){}, 0, 150}, // Display on
 };
 
 static const gc9a01_vendor_config_t adafruit_init_config =

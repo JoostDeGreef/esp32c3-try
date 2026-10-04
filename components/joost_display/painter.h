@@ -2,6 +2,7 @@
 
 #include <tuple>
 #include <string>
+#include <vector>
 
 #include "rgb.h"
 
@@ -31,6 +32,7 @@ public:
     void filled_rectangle(int x0, int y0, int x1, int y1, int16_t rgb);
     void text(int x, int y, int16_t rgb, const std::string & txt);
     void text(const pos & p, int16_t rgb, const std::string & txt) { text(p.x,p.y,rgb,txt); }
+    void filled_polygon(const std::vector<pos> & points, int16_t rgb);
     int textWidth(const std::string & text);
 
 protected:    

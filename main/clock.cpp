@@ -64,7 +64,7 @@ void ClockImpl::Render()
     static uint16_t grey = RGB(50,50,50);
     static uint16_t black = RGB(0,0,0);
     static uint16_t red = RGB(255,0,0);
-    static uint16_t yellow = RGB(255,0,255);
+    static uint16_t yellow = RGB(255,255,0);
 
     static uint16_t r = 120;
 
@@ -80,8 +80,6 @@ void ClockImpl::Render()
     std::string time = Joost::Format("%02i:%02i", hours, minutes);
     int w = p.textWidth(time);
     p.text(r-w/2,150,grey,time);
-    // center dot
-    p.circle(r,r,5,white);
     // ticks
     int r_outer = r;
     int r_middle = r-6;
@@ -108,14 +106,19 @@ void ClockImpl::Render()
         p.line(r-tick[1],r+tick[0],r-tick[3],r+tick[2],white);
         p.line(r+tick[1],r-tick[0],r+tick[3],r-tick[2],white);
     }
+    // center dot
+    p.circle(r,r,5,white);
     // draw the hands
-    // seconds
     r_inner = 10;
-    p.line(static_cast<uint16_t>(r+std::cos(2 * pi * seconds / 60)*r_inner), static_cast<uint16_t>(r+std::sin(2 * pi * seconds / 60)*r_inner), static_cast<uint16_t>(r+std::cos(2 * pi * seconds / 60)*r_outer), static_cast<uint16_t>(r+std::sin(2 * pi * seconds / 60)*r_outer),red,3);
+    // seconds
+    r_outer = r*8/9;
+    pos p0 = {static_cast<int16_t>(r+std::cos(2 * pi * seconds / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * seconds / 60)*r_inner)};
+    pos p1 = {static_cast<int16_t>(r+std::cos(2 * pi * seconds / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * seconds / 60)*r_outer)};
+    p.line(p0,p1,red,3);
     // minutes
-    r_outer = r*4/5;
-    pos p0 = {static_cast<int16_t>(r+std::cos(2 * pi * minutes / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * minutes / 60)*r_inner)};
-    pos p1 = {static_cast<int16_t>(r+std::cos(2 * pi * minutes / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * minutes / 60)*r_outer)};
+    r_outer = r*5/6;
+    p0 = {static_cast<int16_t>(r+std::cos(2 * pi * minutes / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * minutes / 60)*r_inner)};
+    p1 = {static_cast<int16_t>(r+std::cos(2 * pi * minutes / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * minutes / 60)*r_outer)};
     p.line(p0,p1,yellow,4);
     //hours
     r_outer = r*2/3;
@@ -134,15 +137,15 @@ void ClockImpl::Render()
     //         p.filled_rectangle(50+x*10,50+y*10,57+x*10,57+y*10,rgb);
     //     }
     // }
-p.fill(black);
+// p.fill(black);
 
-p.filled_rectangle(20, 20, 60, 60, RGB(255, 0, 0));
-p.filled_rectangle(70, 20, 110, 60, RGB(0, 255, 0));
-p.filled_rectangle(120, 20, 160, 60, RGB(0, 0, 255));
-p.filled_rectangle(170, 20, 210, 60, RGB(255, 255, 0));
-p.filled_rectangle(45, 80, 85, 120, RGB(255, 0, 255));
-p.filled_rectangle(95, 80, 135, 120, RGB(0, 255, 255));
-p.filled_rectangle(145, 80, 185, 120, RGB(255, 255, 255));
+// p.filled_rectangle(20, 20, 60, 60, RGB(255, 0, 0));
+// p.filled_rectangle(70, 20, 110, 60, RGB(0, 255, 0));
+// p.filled_rectangle(120, 20, 160, 60, RGB(0, 0, 255));
+// p.filled_rectangle(170, 20, 210, 60, RGB(255, 255, 0));
+// p.filled_rectangle(45, 80, 85, 120, RGB(255, 0, 255));
+// p.filled_rectangle(95, 80, 135, 120, RGB(0, 255, 255));
+// p.filled_rectangle(145, 80, 185, 120, RGB(255, 255, 255));
 
 // printf("\nR     %04X\n", RGB(255,0,0));
 // printf("G     %04X\n", RGB(0,255,0));

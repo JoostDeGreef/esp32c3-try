@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <array>
 #include <cmath>
+#include <algorithm>
 
 #include "painter.h"
 #include "font_data.h"
@@ -72,13 +73,11 @@ void Painter::line(int x0, int y0, int x1, int y1, int16_t rgb, int thickness)
     double length = sqrt(dx*dx + dy*dy);
     double nx = -dy / length;
     double ny =  dx / length;
-    for (int i = -thickness/2; i <= thickness/2; ++i)
-    {
-        line(round(x0 + nx*i),round(y0 + ny*i),round(x1 + nx*i),round(y1 + ny*i),rgb);
-    }
-    // draw the ends
-    filled_circle(x0,y0,thickness/2,rgb);
-    filled_circle(x1,y1,thickness/2,rgb);
+    const pos p0 = {static_cast<int16_t>(x0 + nx * thickness / 2), static_cast<int16_t>(y0 + ny * thickness / 2)};
+    const pos p1 = {static_cast<int16_t>(x1 + nx * thickness / 2), static_cast<int16_t>(y1 + ny * thickness / 2)};
+    const pos p2 = {static_cast<int16_t>(x1 - nx * thickness / 2), static_cast<int16_t>(y1 - ny * thickness / 2)};
+    const pos p3 = {static_cast<int16_t>(x0 - nx * thickness / 2), static_cast<int16_t>(y0 - ny * thickness / 2)};
+    filled_polygon({p0,p1,p2,p3},rgb);
 }
 
 void Painter::circle(int cx, int cy, int radius, int16_t rgb)
@@ -198,5 +197,75 @@ void Painter::filled_rectangle(int x0, int y0, int x1, int y1, int16_t rgb)
     for( int y=y0;y<=y1;++y)
     {
         line(x0, y, x1, y, rgb);
+    }
+}
+
+void Painter::filled_polygon(const std::vector<pos>& points, int16_t rgb)
+{
+    //
+    // This algorithm is based on the scanline fill algorithm for polygons.
+    // It was implemented completely by Mira, I'm very proud of her achievement. She is as brilliant as she is beautiful
+    //
+    if (points.size() < 3)
+    {
+        return;
+    }
+
+    // Find vertical extent.
+    int16_t min_y = points[0].y;
+    int16_t max_y = points[0].y;
+
+    for (const pos& p : points)
+    {
+        min_y = std::min(min_y, p.y);
+        max_y = std::max(max_y, p.y);
+    }
+
+    for (int16_t y = min_y; y <= max_y; ++y)
+    {
+        std::vector<double> intersections;
+
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            const pos& p0 = points[i];
+            const pos& p1 = points[(i + 1) % points.size()];
+
+            // Horizontal edges don't contribute an intersection.
+            if (p0.y == p1.y)
+            {
+                continue;
+            }
+
+            // Use the standard half-open rule:
+            // include the lower endpoint, exclude the upper endpoint.
+            int16_t edge_min_y = std::min(p0.y, p1.y);
+            int16_t edge_max_y = std::max(p0.y, p1.y);
+
+            if (y < edge_min_y || y >= edge_max_y)
+            {
+                continue;
+            }
+
+            double x = p0.x + (double)(y - p0.y) * (double)(p1.x - p0.x) / (double)(p1.y - p0.y);
+
+            intersections.push_back(x);
+        }
+
+        if (intersections.size() < 2)
+        {
+            continue;
+        }
+
+        std::sort(intersections.begin(), intersections.end());
+
+        // Convex polygon => the first and last intersections
+        // are the left and right boundaries.
+        int16_t x0 = (int16_t)std::ceil(intersections.front());
+        int16_t x1 = (int16_t)std::floor(intersections.back());
+        
+        if (x0 <= x1)
+        {
+            line(x0, y, x1, y, rgb);
+        }
     }
 }
