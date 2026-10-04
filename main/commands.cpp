@@ -10,6 +10,7 @@
 #include "commands.h"
 #include "console.h"
 #include "serial.h"
+#include "wifi.h"
 #include "joost_onboardled.h"
 #include "joost_string.h"
 
@@ -189,15 +190,15 @@ void CommandsImpl::registerCommands()
         }
     }});
 
-    commands.push_back({
-        {"send","transmit"}, 
-        "Send message to serial port", 
-        " send [message]", 
-        "Send (transmit) the message to the serial port on the local device",
-        [](const char* args) 
-    {
-        Serial::Send(args);
-    }});
+    // commands.push_back({
+    //     {"send","transmit"}, 
+    //     "Send message to serial port", 
+    //     " send [message]", 
+    //     "Send (transmit) the message to the serial port on the local device",
+    //     [](const char* args) 
+    // {
+    //     Serial::Send(args);
+    // }});
 
     commands.push_back({
         {"info"}, 
@@ -206,18 +207,19 @@ void CommandsImpl::registerCommands()
         "Show the current device information / configuration",
         [](const char* args) 
     {
-        Console::write("\033[0;34mSerial port config:\n%s\033[0m\n",Serial::Info().c_str());
+        auto ip = WiFi::get_ip();
+        Console::write("\033[0;34mIp address:\n%s\033[0m\n",ip.empty() ? "<not connected>" : ip.c_str());
     }});
 
-    commands.push_back({
-        {"read","receive"}, 
-        "Read message available on serial port (if any)", 
-        " read", 
-        "Read (receive) any message available on the serial port on the local device",
-        [](const char* args) 
-    {
-        Console::write("\033[0;34mReceived \"%s\"\033[0m\n",Serial::Read().c_str());
-    }});
+    // commands.push_back({
+    //     {"read","receive"}, 
+    //     "Read message available on serial port (if any)", 
+    //     " read", 
+    //     "Read (receive) any message available on the serial port on the local device",
+    //     [](const char* args) 
+    // {
+    //     Console::write("\033[0;34mReceived \"%s\"\033[0m\n",Serial::Read().c_str());
+    // }});
 
     // make sure the commands are sorted alphabetically in 'help' output
     std::sort(commands.begin(), commands.end(), [](const CommandData& a, const CommandData& b) 

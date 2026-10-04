@@ -9,7 +9,11 @@
 #include "clock.h"
 #include "console.h"
 #include "serial.h"
+#include "wifi.h"
 #include "joost_onboardled.h"
+
+// this include file defines things which should not go to github, like wifi ssid and password
+#include "wifi_secrets.h"
 
 extern "C" void app_main()
 {
@@ -17,6 +21,9 @@ extern "C" void app_main()
 
     Serial::configure();
   
+    WiFi::configure();
+    WiFi::connect(WIFI_SSID, WIFI_PASSWORD);
+
     Clock::start();
 
     OnboardLed::flash();

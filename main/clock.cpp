@@ -110,21 +110,21 @@ void ClockImpl::Render()
     p.circle(r,r,5,white);
     // draw the hands
     r_inner = 10;
-    // seconds
-    r_outer = r*8/9;
-    pos p0 = {static_cast<int16_t>(r+std::cos(2 * pi * seconds / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * seconds / 60)*r_inner)};
-    pos p1 = {static_cast<int16_t>(r+std::cos(2 * pi * seconds / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * seconds / 60)*r_outer)};
-    p.line(p0,p1,red,3);
+    //hours
+    r_outer = r*2/3;
+    pos p0 = {static_cast<int16_t>(r+std::cos(2 * pi * hours / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * hours / 60)*r_inner)};
+    pos p1 = {static_cast<int16_t>(r+std::cos(2 * pi * hours / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * hours / 60)*r_outer)};
+    p.line(p0,p1,yellow,5);
     // minutes
     r_outer = r*5/6;
     p0 = {static_cast<int16_t>(r+std::cos(2 * pi * minutes / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * minutes / 60)*r_inner)};
     p1 = {static_cast<int16_t>(r+std::cos(2 * pi * minutes / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * minutes / 60)*r_outer)};
     p.line(p0,p1,yellow,4);
-    //hours
-    r_outer = r*2/3;
-    p0 = {static_cast<int16_t>(r+std::cos(2 * pi * hours / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * hours / 60)*r_inner)};
-    p1 = {static_cast<int16_t>(r+std::cos(2 * pi * hours / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * hours / 60)*r_outer)};
-    p.line(p0,p1,yellow,5);
+    // seconds
+    r_outer = r*8/9;
+    p0 = {static_cast<int16_t>(r+std::cos(2 * pi * seconds / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * seconds / 60)*r_inner)};
+    p1 = {static_cast<int16_t>(r+std::cos(2 * pi * seconds / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * seconds / 60)*r_outer)};
+    p.line(p0,p1,red,3);
 
     // something is very odd with the colors. 
     // do some more testing
