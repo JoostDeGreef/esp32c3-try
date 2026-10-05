@@ -26,7 +26,8 @@ extern "C" void app_main()
 
     Clock::start();
 
-    OnboardLed::flash();
+    OnboardLed::blink();
+    // OnboardLed::flash();
 
     Console::mainLoop();
 }
