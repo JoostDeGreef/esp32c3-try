@@ -10,17 +10,12 @@
 #include "esp_event.h"
 #include "nvs_flash.h"
 
-/* The event group allows multiple bits for each event, but we only care about two events:
- * - we are connected to the AP with an IP
- * - we failed to connect after the maximum amount of retries */
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
-/* number or retries. make this a member variable */
 static int s_retry_num = 0;
 #define WIFI_MAXIMUM_RETRY 5
 
-/* FreeRTOS event group to signal when we are connected. make this a member variable */
 static EventGroupHandle_t s_wifi_event_group;
 
 static std::string wifi_ip = "";
@@ -29,13 +24,42 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) 
     {
+        wifi_scan_config_t scan_config = {};
+        scan_config.show_hidden = true;
+
+        ESP_ERROR_CHECK(esp_wifi_scan_start(&scan_config, true));
+
+        uint16_t ap_count = 0;
+        ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
+
+        printf("Found %u access points:\n", ap_count);
+
+        constexpr uint16_t max_records = 32;
+        wifi_ap_record_t records[max_records];
+        uint16_t record_count = ap_count > max_records ? max_records : ap_count;
+
+        if (record_count > 0)
+        {
+            ESP_ERROR_CHECK(
+                esp_wifi_scan_get_ap_records(&record_count, records));
+
+            for (uint16_t i = 0; i < record_count; ++i)
+            {
+                printf("  %-32s  channel %2u  RSSI %4d  auth %d\n",
+                       reinterpret_cast<char*>(records[i].ssid),
+                       records[i].primary,
+                       records[i].rssi,
+                       records[i].authmode);
+            }
+        }
+
+        printf("Wi-Fi scan finished.\n");
         esp_wifi_connect();
     } 
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) 
     {
         wifi_event_sta_disconnected_t* event = (wifi_event_sta_disconnected_t*) event_data;
         printf("===> for Mira: %i\n", event->reason);
-
 
         wifi_ip = "";
         if (s_retry_num < WIFI_MAXIMUM_RETRY) 
@@ -99,30 +123,24 @@ namespace WiFi
 
     void connect(const char * ssid, const char * password)
     {
-        //Allocate storage for the struct
         wifi_config_t sta_config = {};
 
-        //Assign ssid & password strings
         strcpy((char*)sta_config.sta.ssid, ssid);
         strcpy((char*)sta_config.sta.password, password);
         sta_config.sta.bssid_set = false;
 
-        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
-        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &sta_config) );
-        ESP_ERROR_CHECK(esp_wifi_start() );
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &sta_config));
+        ESP_ERROR_CHECK(esp_wifi_start());
 
         printf("wifi_init_sta finished.\n");
 
-        /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
-         * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
         EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
                 WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
                 pdFALSE,
                 pdFALSE,
                 portMAX_DELAY);
 
-        /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
-         * happened. */
         if (bits & WIFI_CONNECTED_BIT) 
         {
             printf("connected to ap SSID:%s\n", ssid);
@@ -139,7 +157,7 @@ namespace WiFi
 
     void disconnect()
     {
-        ESP_ERROR_CHECK(esp_wifi_disconnect() );
+        ESP_ERROR_CHECK(esp_wifi_disconnect());
     }
 
     bool is_connected()
@@ -152,4 +170,3 @@ namespace WiFi
         return wifi_ip;
     }
 }
-
