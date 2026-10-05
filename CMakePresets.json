@@ -12,7 +12,7 @@
       "description": "Development configuration",
       "binaryDir": "/home/joost/src/esp32-s3_wifi/build/default",
       "cacheVariables": {
-        "SDKCONFIG": "/home/joost/src/esp32-s3_wifi/build/default/sdkconfig",
+        "SDKCONFIG": "/home/joost/src/esp32-s3_wifi/sdkconfig",
         "IDF_TARGET": "esp32c3"
       },
       "vendor": {
@@ -39,7 +39,7 @@
       "description": "Production configuration",
       "binaryDir": "/home/joost/src/esp32-s3_wifi/build/production",
       "cacheVariables": {
-        "SDKCONFIG": "/home/joost/src/esp32-s3_wifi/build/production/sdkconfig"
+        "SDKCONFIG": "/home/joost/src/esp32-s3_wifi/sdkconfig"
       }
     }
   ]

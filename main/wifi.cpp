@@ -10,6 +10,8 @@
 #include "esp_event.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
+#include "esp_netif_sntp.h"
+#include "esp_sntp.h"
 
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
@@ -120,14 +122,29 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
 
 namespace WiFi
 {
+    void startNTP()
+    {
+        setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0", 1);
+        tzset();
+
+        // esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
+        // esp_sntp_setservername(0, "pool.ntp.org");
+        // esp_sntp_init();
+
+        esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG_MULTIPLE(0, {});
+        config.start = false; 
+        config.server_from_dhcp = true; 
+        esp_netif_sntp_init(&config);
+        esp_netif_sntp_start();
+    }
+
     void configure()
     {
         printf("ESP_WIFI_MODE_STA\n");
 
-        // esp_log_level_set("wifi", ESP_LOG_DEBUG);
-        // esp_log_level_set("wpa", ESP_LOG_DEBUG);
-        esp_log_level_set("wifi", ESP_LOG_VERBOSE);
-        esp_log_level_set("wpa", ESP_LOG_VERBOSE);
+        esp_log_level_set("ROAM", ESP_LOG_WARN);
+        esp_log_level_set("wifi", ESP_LOG_WARN);
+        esp_log_level_set("wpa", ESP_LOG_WARN);
 
         s_wifi_event_group = xEventGroupCreate();
 
@@ -183,7 +200,9 @@ namespace WiFi
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &sta_config));
         ESP_ERROR_CHECK(esp_wifi_start());
 
-        // physical layout issue of the board requires this:
+        // physical layout issue of the board requires this, also see the mentioned webpages
+        // - https://en.neonhero.dev/2025/09/esp32-c3-wifi-signal-issue.html
+        // - https://www.reddit.com/r/esp32/comments/1r37gmk/esp32c3_super_minis_wifi_not_working/
         ESP_ERROR_CHECK(esp_wifi_set_max_tx_power(34));
 
         printf("wifi_init_sta finished.\n");
@@ -197,6 +216,7 @@ namespace WiFi
         if (bits & WIFI_CONNECTED_BIT) 
         {
             printf("connected to ap SSID:%s\n", ssid);
+            startNTP();
         } 
         else if (bits & WIFI_FAIL_BIT) 
         {

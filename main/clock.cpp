@@ -5,7 +5,6 @@
 #include <ctime>
 
 #include "clock.h"
-#include "esp_sntp.h"
 #include "display.h"
 #include "console.h"
 #include "joost_timer.h"
@@ -41,15 +40,6 @@ ClockImpl::ClockImpl()
 
 void ClockImpl::Start()
 {
-    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0", 1);
-    tzset();
-
-    esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    esp_sntp_setservername(0, "pool.ntp.org");
-    esp_sntp_init();
-
-    printf("NTP started\n");
-
     int period_ms = 333;
     render_timer = std::unique_ptr<Timer>(new Timer([this]()
     {
@@ -72,7 +62,7 @@ void ClockImpl::Stop()
 void ClockImpl::Render()
 {
     static uint16_t white = RGB(255,255,255);
-    static uint16_t grey = RGB(50,50,50);
+    static uint16_t grey = RGB(150,150,150);
     static uint16_t black = RGB(0,0,0);
     static uint16_t red = RGB(255,0,0);
     static uint16_t yellow = RGB(255,255,0);
@@ -88,18 +78,6 @@ void ClockImpl::Render()
     int minutes = local_time.tm_min;
     int hours = local_time.tm_hour;
 
-    static bool reported_sync = false;
-    if (!reported_sync && sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED)
-    {
-        printf("NTP synchronized: %04d-%02d-%02d %02d:%02d:%02d\n",
-               local_time.tm_year + 1900,
-               local_time.tm_mon + 1,
-               local_time.tm_mday,
-               local_time.tm_hour,
-               local_time.tm_min,
-               local_time.tm_sec);
-        reported_sync = true;
-    }
     // digital clock    
     std::string time = Joost::Format("%02i:%02i", hours, minutes);
     int w = p.textWidth(time);
@@ -135,19 +113,25 @@ void ClockImpl::Render()
     // draw the hands
     r_inner = 10;
     //hours
+    hours = (hours + 9) % 12;
     r_outer = r*2/3;
-    pos p0 = {static_cast<int16_t>(r+std::cos(2 * pi * hours / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * hours / 60)*r_inner)};
-    pos p1 = {static_cast<int16_t>(r+std::cos(2 * pi * hours / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * hours / 60)*r_outer)};
+    double t = 2 * pi * ((hours + (minutes / 60.0)) / 12.0);
+    pos p0 = {static_cast<int16_t>(r+std::cos(t)*r_inner), static_cast<int16_t>(r+std::sin(t)*r_inner)};
+    pos p1 = {static_cast<int16_t>(r+std::cos(t)*r_outer), static_cast<int16_t>(r+std::sin(t)*r_outer)};
     p.line(p0,p1,yellow,5);
     // minutes
     r_outer = r*5/6;
-    p0 = {static_cast<int16_t>(r+std::cos(2 * pi * minutes / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * minutes / 60)*r_inner)};
-    p1 = {static_cast<int16_t>(r+std::cos(2 * pi * minutes / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * minutes / 60)*r_outer)};
+    minutes = (minutes + 45) % 60;
+    t = 2 * pi * (minutes / 60.0);
+    p0 = {static_cast<int16_t>(r+std::cos(t)*r_inner), static_cast<int16_t>(r+std::sin(t)*r_inner)};
+    p1 = {static_cast<int16_t>(r+std::cos(t)*r_outer), static_cast<int16_t>(r+std::sin(t)*r_outer)};
     p.line(p0,p1,yellow,4);
     // seconds
     r_outer = r*8/9;
-    p0 = {static_cast<int16_t>(r+std::cos(2 * pi * seconds / 60)*r_inner), static_cast<int16_t>(r+std::sin(2 * pi * seconds / 60)*r_inner)};
-    p1 = {static_cast<int16_t>(r+std::cos(2 * pi * seconds / 60)*r_outer), static_cast<int16_t>(r+std::sin(2 * pi * seconds / 60)*r_outer)};
+    seconds = (seconds + 45) % 60;
+    t = 2 * pi * (seconds / 60.0);
+    p0 = {static_cast<int16_t>(r+std::cos(t)*r_inner), static_cast<int16_t>(r+std::sin(t)*r_inner)};
+    p1 = {static_cast<int16_t>(r+std::cos(t)*r_outer), static_cast<int16_t>(r+std::sin(t)*r_outer)};
     p.line(p0,p1,red,3);
 
     // something is very odd with the colors. 

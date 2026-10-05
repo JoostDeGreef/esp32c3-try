@@ -208,8 +208,16 @@ void CommandsImpl::registerCommands()
         "Show the current device information / configuration",
         [](const char* args) 
     {
+        time_t now = time(nullptr);
+        struct tm local_time = {};
+        localtime_r(&now, &local_time);
+        int seconds = local_time.tm_sec;
+        int minutes = local_time.tm_min;
+        int hours = local_time.tm_hour;
+        Console::write("\033[0;34mtime: %02d:%02d:%02d\033[0m\n", hours, minutes, seconds);
+        
         auto ip = WiFi::get_ip();
-        Console::write("\033[0;34mIp address:\n%s\033[0m\n",ip.empty() ? "<not connected>" : ip.c_str());
+        Console::write("\033[0;34mIp address: %s\033[0m\n",ip.empty() ? "<not connected>" : ip.c_str());
     }});
 
     commands.push_back({
