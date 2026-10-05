@@ -23,6 +23,26 @@ static std::string wifi_ip = "";
 static constexpr uint16_t WIFI_SCAN_MAX_RECORDS = 32;
 static wifi_ap_record_t wifi_scan_records[WIFI_SCAN_MAX_RECORDS];
 
+static void print_wifi_status(const char* where)
+{
+    wifi_ap_record_t ap_info = {};
+    esp_err_t ret = esp_wifi_sta_get_ap_info(&ap_info);
+
+    if (ret == ESP_OK)
+    {
+        printf("%s: ASSOCIATED BSSID %02X:%02X:%02X:%02X:%02X:%02X channel %u RSSI %d\n",
+               where,
+               ap_info.bssid[0], ap_info.bssid[1], ap_info.bssid[2],
+               ap_info.bssid[3], ap_info.bssid[4], ap_info.bssid[5],
+               ap_info.primary,
+               ap_info.rssi);
+    }
+    else
+    {
+        printf("%s: NOT ASSOCIATED (%s)\n", where, esp_err_to_name(ret));
+    }
+}
+
 static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) 
@@ -57,17 +77,23 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
         }
 
         printf("Wi-Fi scan finished.\n");
-        esp_wifi_connect();
+
+        esp_err_t ret = esp_wifi_connect();
+        printf("esp_wifi_connect(): %s\n", esp_err_to_name(ret));
     } 
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) 
     {
         wifi_event_sta_disconnected_t* event = (wifi_event_sta_disconnected_t*) event_data;
         printf("===> for Mira: %i\n", event->reason);
 
+        print_wifi_status("after disconnect");
+
         wifi_ip = "";
         if (s_retry_num < WIFI_MAXIMUM_RETRY) 
         {
-            esp_wifi_connect();
+            esp_err_t ret = esp_wifi_connect();
+            printf("retry esp_wifi_connect(): %s\n", esp_err_to_name(ret));
+
             s_retry_num++;
             printf("retry to connect to the AP\n");
         } 
@@ -83,6 +109,9 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
         char buf[16];
         wifi_ip = std::string(esp_ip4addr_ntoa(&event->ip_info.ip, buf, sizeof(buf)));
         printf("got ip:" IPSTR "\n", IP2STR(&event->ip_info.ip));
+
+        print_wifi_status("got IP");
+
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
