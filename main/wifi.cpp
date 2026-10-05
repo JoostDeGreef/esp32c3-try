@@ -20,6 +20,9 @@ static EventGroupHandle_t s_wifi_event_group;
 
 static std::string wifi_ip = "";
 
+static constexpr uint16_t WIFI_SCAN_MAX_RECORDS = 32;
+static wifi_ap_record_t wifi_scan_records[WIFI_SCAN_MAX_RECORDS];
+
 static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) 
@@ -34,22 +37,22 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
 
         printf("Found %u access points:\n", ap_count);
 
-        constexpr uint16_t max_records = 32;
-        wifi_ap_record_t records[max_records];
-        uint16_t record_count = ap_count > max_records ? max_records : ap_count;
+        uint16_t record_count = ap_count > WIFI_SCAN_MAX_RECORDS
+                              ? WIFI_SCAN_MAX_RECORDS
+                              : ap_count;
 
         if (record_count > 0)
         {
             ESP_ERROR_CHECK(
-                esp_wifi_scan_get_ap_records(&record_count, records));
+                esp_wifi_scan_get_ap_records(&record_count, wifi_scan_records));
 
             for (uint16_t i = 0; i < record_count; ++i)
             {
                 printf("  %-32s  channel %2u  RSSI %4d  auth %d\n",
-                       reinterpret_cast<char*>(records[i].ssid),
-                       records[i].primary,
-                       records[i].rssi,
-                       records[i].authmode);
+                       reinterpret_cast<char*>(wifi_scan_records[i].ssid),
+                       wifi_scan_records[i].primary,
+                       wifi_scan_records[i].rssi,
+                       wifi_scan_records[i].authmode);
             }
         }
 
