@@ -8,6 +8,7 @@
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
+#include "esp_log.h"
 #include "nvs_flash.h"
 
 #define WIFI_CONNECTED_BIT BIT0
@@ -122,6 +123,10 @@ namespace WiFi
     void configure()
     {
         printf("ESP_WIFI_MODE_STA\n");
+
+        esp_log_level_set("wifi", ESP_LOG_DEBUG);
+        esp_log_level_set("wpa", ESP_LOG_DEBUG);
+
         s_wifi_event_group = xEventGroupCreate();
 
         esp_err_t ret = nvs_flash_init();
@@ -160,12 +165,7 @@ namespace WiFi
         strcpy((char*)sta_config.sta.ssid, ssid);
         strcpy((char*)sta_config.sta.password, password);
 
-        static const uint8_t test_bssid[6] = {
-            0x14, 0x49, 0xBC, 0x8C, 0x61, 0xA2
-        };
-
-        sta_config.sta.bssid_set = true;
-        memcpy(sta_config.sta.bssid, test_bssid, sizeof(test_bssid));
+        sta_config.sta.bssid_set = false;
 
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &sta_config));
