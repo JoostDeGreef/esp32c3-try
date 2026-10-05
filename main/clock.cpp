@@ -1,9 +1,11 @@
 #include <cmath>
 #include <numbers>
 #include <array>
-#include <tuple> 
+#include <tuple>
+#include <ctime>
 
 #include "clock.h"
+#include "esp_sntp.h"
 #include "display.h"
 #include "console.h"
 #include "joost_timer.h"
@@ -39,6 +41,15 @@ ClockImpl::ClockImpl()
 
 void ClockImpl::Start()
 {
+    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0", 1);
+    tzset();
+
+    esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    esp_sntp_setservername(0, "pool.ntp.org");
+    esp_sntp_init();
+
+    printf("NTP started\n");
+
     int period_ms = 333;
     render_timer = std::unique_ptr<Timer>(new Timer([this]()
     {
@@ -70,12 +81,25 @@ void ClockImpl::Render()
 
     Painter p = Display::getPainter();
     p.clear();
-    // get the time from somewhere real, for now, millis()+400 shows all hands
-    int seconds = 4000 + esp_timer_get_time() / (1000*1000);
-    int minutes = seconds/60;
-    int hours = minutes/60;
-    minutes %= 60;
-    seconds %= 60;
+    time_t now = time(nullptr);
+    struct tm local_time = {};
+    localtime_r(&now, &local_time);
+    int seconds = local_time.tm_sec;
+    int minutes = local_time.tm_min;
+    int hours = local_time.tm_hour;
+
+    static bool reported_sync = false;
+    if (!reported_sync && sntp_get_sync_status() == SNTP_SYNC_STATUS_COMPLETED)
+    {
+        printf("NTP synchronized: %04d-%02d-%02d %02d:%02d:%02d\n",
+               local_time.tm_year + 1900,
+               local_time.tm_mon + 1,
+               local_time.tm_mday,
+               local_time.tm_hour,
+               local_time.tm_min,
+               local_time.tm_sec);
+        reported_sync = true;
+    }
     // digital clock    
     std::string time = Joost::Format("%02i:%02i", hours, minutes);
     int w = p.textWidth(time);
