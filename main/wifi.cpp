@@ -130,7 +130,13 @@ namespace WiFi
 
         strcpy((char*)sta_config.sta.ssid, ssid);
         strcpy((char*)sta_config.sta.password, password);
-        sta_config.sta.bssid_set = false;
+
+        static const uint8_t test_bssid[6] = {
+            0x14, 0x49, 0xBC, 0x8C, 0x61, 0xA2
+        };
+
+        sta_config.sta.bssid_set = true;
+        memcpy(sta_config.sta.bssid, test_bssid, sizeof(test_bssid));
 
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &sta_config));
