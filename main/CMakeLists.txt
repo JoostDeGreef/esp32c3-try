@@ -10,6 +10,7 @@ idf_component_register(SRCS clock.cpp
                                      esp_netif
                                      esp_event
                                      esp_system
+                                     nvs_flash
                        REQUIRES joost_display
                                 joost_onboardled
                                 joost_support
