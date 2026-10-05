@@ -176,6 +176,9 @@ namespace WiFi
         sta_config.sta.bssid_set = true;
         memcpy(sta_config.sta.bssid, test_bssid, sizeof(test_bssid));
 
+        // For this diagnostic run, accept only WPA2-PSK or stronger.
+        sta_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
+
         ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
         ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &sta_config));
         ESP_ERROR_CHECK(esp_wifi_start());
