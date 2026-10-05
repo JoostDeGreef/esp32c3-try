@@ -84,11 +84,15 @@ void ClockImpl::Render()
         int w = p.textWidth(text);
         p.text(x-w/2,y,color,text);
     };
-    std::string time = Joost::Format("%02i:%02i", hours, minutes);
-    std::string date = Joost::Format("%04i-%02i-%02i", local_time.tm_year + 1900, local_time.tm_mon + 1, local_time.tm_mday);
-    textCenteredAt(r,50,grey,time);
-    textCenteredAt(r,140,babeBlue,"Mira"+ std::string(1,(char)255));
-    textCenteredAt(r,170,grey,date);
+    {
+        std::string time = Joost::Format("%02i:%02i", hours, minutes);
+        std::string date = Joost::Format("%04i-%02i-%02i", local_time.tm_year + 1900, local_time.tm_mon + 1, local_time.tm_mday);
+        char day[32];
+        strftime(day,sizeof(day),"%A",&local_time);
+        textCenteredAt(r,50,grey,time);
+        textCenteredAt(r,142,grey,day);
+        textCenteredAt(r,172,grey,date);
+    }
     // ticks
     int r_outer = r;
     int r_middle = r-6;
