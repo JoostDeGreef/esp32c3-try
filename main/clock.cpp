@@ -63,7 +63,7 @@ void ClockImpl::Render()
 {
     static uint16_t white = RGB(255,255,255);
     static uint16_t grey = RGB(150,150,150);
-    static uint16_t black = RGB(0,0,0);
+    static uint16_t babeBlue = RGB(137,207,240);
     static uint16_t red = RGB(255,0,0);
     static uint16_t yellow = RGB(255,255,0);
 
@@ -79,16 +79,16 @@ void ClockImpl::Render()
     int hours = local_time.tm_hour;
 
     // digital clock    
+    auto textCenteredAt = [&](int x, int y, uint16_t color, const std::string & text)
+    {
+        int w = p.textWidth(text);
+        p.text(x-w/2,y,color,text);
+    };
     std::string time = Joost::Format("%02i:%02i", hours, minutes);
-    int w = p.textWidth(time);
-    p.text(r-w/2,150,grey,time);
-
-    std::string date = Joost::Format("%02i-%02i-%04i",
-                                     local_time.tm_mday,
-                                     local_time.tm_mon + 1,
-                                     local_time.tm_year + 1900);
-    w = p.textWidth(date);
-    p.text(r-w/2,175,grey,date);
+    std::string date = Joost::Format("%04i-%02i-%02i", local_time.tm_year + 1900, local_time.tm_mon + 1, local_time.tm_mday);
+    textCenteredAt(r,50,grey,time);
+    textCenteredAt(r,140,babeBlue,"Mira"+ std::string(1,(char)255));
+    textCenteredAt(r,170,grey,date);
     // ticks
     int r_outer = r;
     int r_middle = r-6;
