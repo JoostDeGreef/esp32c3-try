@@ -5,6 +5,7 @@
 #include <cstring>  
 
 #include "linenoise/linenoise.h"
+#include "esp_system.h"
 
 //#include "ansi.h"
 #include "commands.h"
@@ -209,6 +210,16 @@ void CommandsImpl::registerCommands()
     {
         auto ip = WiFi::get_ip();
         Console::write("\033[0;34mIp address:\n%s\033[0m\n",ip.empty() ? "<not connected>" : ip.c_str());
+    }});
+
+    commands.push_back({
+        {"reset"}, 
+        "Reset the device", 
+        " reset", 
+        "Reset the device",
+        [](const char* args) 
+    {
+        esp_restart();
     }});
 
     // commands.push_back({
