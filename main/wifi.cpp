@@ -122,29 +122,50 @@ static void event_handler(void* arg, esp_event_base_t event_base, int32_t event_
 
 namespace WiFi
 {
-    void startNTP()
+    struct NTP
     {
-        setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0", 1);
-        tzset();
+        static void sntp_event_handler(void *arg, esp_event_base_t base, int32_t id, void *data)
+        {
+            (void)arg; (void)base; (void)id;
+            const esp_netif_sntp_time_sync_t *evt = (const esp_netif_sntp_time_sync_t *)data;
+            if (evt) 
+            {
+                char ts[64];
+                time_t t = evt->tv.tv_sec;
+                struct tm tm_utc;
+                gmtime_r(&t, &tm_utc);
+                strftime(ts, sizeof(ts), "%Y-%m-%d %H:%M:%S", &tm_utc);
+                ESP_LOGI("NTP", "SNTP event: time synced (UTC): %s.%06ld", ts, (long)evt->tv.tv_usec);
+            } 
+            else 
+            {
+                ESP_LOGI("NTP", "SNTP event: time synced (no timeval provided)");
+            }
+        }
+        static void configure()
+        {
+            setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0", 1);
+            tzset();
 
-        // esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
-        // esp_sntp_setservername(0, "pool.ntp.org");
-        // esp_sntp_init();
-
-        esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG_MULTIPLE(0, {});
-        config.start = false; 
-        config.server_from_dhcp = true; 
-        esp_netif_sntp_init(&config);
-        esp_netif_sntp_start();
-    }
+            ESP_LOGI("NTP", "Initializing SNTP");
+            esp_sntp_config_t config = ESP_NETIF_SNTP_DEFAULT_CONFIG("pool.ntp.org");
+            config.start = false;                       // start SNTP service explicitly (after connecting)
+            config.server_from_dhcp = true;             // accept NTP offers from DHCP server, if any (need to enable *before* connecting)
+            config.renew_servers_after_new_IP = true;   // let esp-netif update configured SNTP server(s) after receiving DHCP lease
+            config.index_of_first_server = 1;           // updates from server num 1, leaving server 0 (from DHCP) intact
+            config.ip_event_to_renew = IP_EVENT_STA_GOT_IP;  // configure the event on which we renew servers
+            config.sync_cb = nullptr;                   // only if we need the notification function
+            ESP_ERROR_CHECK(esp_netif_sntp_init(&config));
+        }
+        static void start()
+        {
+            ESP_ERROR_CHECK(esp_netif_sntp_start());
+        }
+    };
 
     void configure()
     {
         printf("ESP_WIFI_MODE_STA\n");
-
-        esp_log_level_set("ROAM", ESP_LOG_WARN);
-        esp_log_level_set("wifi", ESP_LOG_WARN);
-        esp_log_level_set("wpa", ESP_LOG_WARN);
 
         s_wifi_event_group = xEventGroupCreate();
 
@@ -175,6 +196,8 @@ namespace WiFi
                                                             &event_handler,
                                                             NULL,
                                                             &instance_got_ip));
+
+        NTP::configure();
     }
 
     void connect(const char * ssid, const char * password)
@@ -216,7 +239,7 @@ namespace WiFi
         if (bits & WIFI_CONNECTED_BIT) 
         {
             printf("connected to ap SSID:%s\n", ssid);
-            startNTP();
+            NTP::start();
         } 
         else if (bits & WIFI_FAIL_BIT) 
         {

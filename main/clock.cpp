@@ -145,36 +145,6 @@ void ClockImpl::Render()
     p1 = {static_cast<int16_t>(r+std::cos(t)*r_outer), static_cast<int16_t>(r+std::sin(t)*r_outer)};
     p.line(p0,p1,red,3);
 
-    // something is very odd with the colors. 
-    // do some more testing
-    // p.fill(black);
-    // for(uint16_t y=0;y<15;++y)
-    // {
-    //     for(uint16_t x=0;x<15;++x)
-    //     {
-    //         uint16_t rgb = ~((3<<x) | (3<<y));
-    //         p.filled_rectangle(50+x*10,50+y*10,57+x*10,57+y*10,rgb);
-    //     }
-    // }
-// p.fill(black);
-
-// p.filled_rectangle(20, 20, 60, 60, RGB(255, 0, 0));
-// p.filled_rectangle(70, 20, 110, 60, RGB(0, 255, 0));
-// p.filled_rectangle(120, 20, 160, 60, RGB(0, 0, 255));
-// p.filled_rectangle(170, 20, 210, 60, RGB(255, 255, 0));
-// p.filled_rectangle(45, 80, 85, 120, RGB(255, 0, 255));
-// p.filled_rectangle(95, 80, 135, 120, RGB(0, 255, 255));
-// p.filled_rectangle(145, 80, 185, 120, RGB(255, 255, 255));
-
-// printf("\nR     %04X\n", RGB(255,0,0));
-// printf("G     %04X\n", RGB(0,255,0));
-// printf("B     %04X\n", RGB(0,0,255));
-// printf("Y     %04X\n", RGB(255,255,0));
-// printf("M     %04X\n", RGB(255,0,255));
-// printf("C     %04X\n", RGB(0,255,255));
-// printf("W     %04X\n", RGB(255,255,255));
-// printf("K     %04X\n\n", RGB(0,0,0));
-
     Display::flip();
 }
 

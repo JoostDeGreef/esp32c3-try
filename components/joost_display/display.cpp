@@ -41,6 +41,7 @@ class DisplayImpl
         void configure();
         void flip();
         uint16_t * getBuffer();
+        void sleep(bool s);
 
     private:
         esp_lcd_panel_handle_t panel_handle = NULL;
@@ -69,6 +70,11 @@ void Display::flip()
 Painter Display::getPainter()
 {
     return Painter(EXAMPLE_LCD_H_RES,EXAMPLE_LCD_V_RES,DisplayImpl::getinstance().getBuffer());
+}
+
+void Display::sleep(bool s)
+{
+    DisplayImpl::getinstance().sleep(s);
 }
 
 /***************************************************************/
@@ -307,3 +313,7 @@ uint16_t * DisplayImpl::getBuffer()
     return framebuffer.data();
 }
 
+void DisplayImpl::sleep(bool s)
+{
+    ESP_ERROR_CHECK(esp_lcd_panel_disp_on_off(panel_handle, s));
+}

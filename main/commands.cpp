@@ -10,6 +10,7 @@
 //#include "ansi.h"
 #include "commands.h"
 #include "console.h"
+#include "display.h"
 #include "serial.h"
 #include "wifi.h"
 #include "joost_onboardled.h"
@@ -228,6 +229,29 @@ void CommandsImpl::registerCommands()
         [](const char* args) 
     {
         esp_restart();
+    }});
+
+    commands.push_back({
+        {"sleep"}, 
+        "Display sleep mode", 
+        " sleep <on|off>", 
+        "Set the display sleep mode\n"
+        "  on     : sleep mode on\n"
+        "  off    : sleep mode off\n",
+        [](const char* args) 
+    {
+        if (std::string(args) == "on") 
+        {
+            Display::sleep(false);
+        }
+        else if (std::string(args) == "off") 
+        {
+            Display::sleep(true);
+        }
+        else 
+        {
+            Console::write("\033[0;31mInvalid argument for 'sleep' command. Use 'sleep on' or 'sleep off'\033[0m\n");
+        }
     }});
 
     // commands.push_back({

@@ -24,4 +24,9 @@ public:
      *  get a painter for the currently active buffer 
      */
     static Painter getPainter();
+
+    /*
+     *  state of the display go to sleep state
+     */
+    static void sleep(bool s);
 };
